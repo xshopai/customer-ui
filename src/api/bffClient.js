@@ -43,17 +43,6 @@ bffClient.interceptors.request.use(
     const correlationId = `customer-ui-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     config.headers['x-correlation-id'] = correlationId;
 
-    // Log in development
-    // if (process.env.NODE_ENV === 'development') {
-    //   console.log('📤 BFF Request:', {
-    //     method: config.method?.toUpperCase(),
-    //     url: config.url,
-    //     fullURL: `${config.baseURL}${config.url}`,
-    //     correlationId,
-    //     hasToken: !!token,
-    //   });
-    // }
-
     return config;
   },
   error => {

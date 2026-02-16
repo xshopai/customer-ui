@@ -9,8 +9,9 @@
  * - AJAX/fetch dependencies
  * - Performance metrics (Core Web Vitals)
  *
- * Uses the same Application Insights instance as backend services for
- * end-to-end distributed tracing.
+ * Configuration:
+ * - Set REACT_APP_APPINSIGHTS_CONNECTION_STRING to enable telemetry
+ * - Without connection string, telemetry is silently disabled (no console noise)
  */
 
 import { ApplicationInsights } from '@microsoft/applicationinsights-web';
@@ -29,10 +30,8 @@ let appInsights = null;
 export function initializeAppInsights() {
   const connectionString = process.env.REACT_APP_APPINSIGHTS_CONNECTION_STRING;
 
+  // Silently disable if no connection string (common for local dev)
   if (!connectionString) {
-    console.log(
-      '[AppInsights] No connection string provided, telemetry disabled'
-    );
     return null;
   }
 
