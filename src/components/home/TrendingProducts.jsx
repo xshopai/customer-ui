@@ -86,7 +86,8 @@ const TrendingProducts = () => {
             {products.map(product => (
               <article
                 key={product.id}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:shadow-xl transition-all duration-300"
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-lg ring-1 ring-gray-200 dark:ring-gray-700 hover:shadow-xl transition-all duration-300 cursor-pointer"
+                onClick={() => handleViewDetails(product.link)}
               >
                 <div className="relative">
                   <img
@@ -144,12 +145,8 @@ const TrendingProducts = () => {
                   </div>
 
                   {/* Product Title with fixed height */}
-                  <div className="group relative flex-1">
+                  <div className="flex-1">
                     <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 dark:text-white group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors line-clamp-2">
-                      <button
-                        onClick={() => handleViewDetails(product.link)}
-                        className="absolute inset-0 text-left"
-                      />
                       {product.name}
                     </h3>
                   </div>
@@ -167,16 +164,6 @@ const TrendingProducts = () => {
                       ))}
                     </div>
                   )}
-
-                  {/* Fixed position button */}
-                  <div className="mt-6">
-                    <button
-                      onClick={() => handleViewDetails(product.link)}
-                      className="inline-flex w-full items-center justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600 transition-colors"
-                    >
-                      View Details
-                    </button>
-                  </div>
                 </div>
               </article>
             ))}

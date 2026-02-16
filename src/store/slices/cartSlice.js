@@ -134,22 +134,15 @@ export const addToCartAsync = createAsyncThunk(
     try {
       const { auth } = getState();
 
-      // Generate variant SKU if we have base SKU and variant selection
-      // Format: BASE-SKU-COLOR-SIZE (e.g., WOM-CLO-TOP-001-BLACK-M)
-      let variantSku = product.sku || null;
-      if (variantSku && (product.selectedColor || product.selectedSize)) {
-        if (product.selectedColor) {
-          variantSku += `-${product.selectedColor.toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
-        }
-        if (product.selectedSize) {
-          variantSku += `-${product.selectedSize.toUpperCase().replace(/[^A-Z0-9]/g, '')}`;
-        }
-      }
+      // Use variant SKU from product data - should already be looked up by caller
+      // The SKU should be the variant SKU (e.g., WOM-CLO-TOP-001-BLACK-M)
+      // from the product.variants array, not generated at runtime
+      const sku = product.sku || null;
 
       const itemData = {
         productId: product.id,
         productName: product.name,
-        sku: variantSku, // Send variant SKU directly to avoid extra service call
+        sku: sku, // Use SKU as passed (should be variant SKU from API)
         price: product.price,
         quantity,
         imageUrl: product.images?.[0] || product.image || '/placeholder.png',

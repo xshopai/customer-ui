@@ -28,15 +28,52 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [favorites, setFavorites] = useState(new Set());
 
+  // Helper function to look up variant SKU from product variants array
+  const getVariantSku = (colorName, sizeName) => {
+    if (!product?.variants || product.variants.length === 0) {
+      return null;
+    }
+    // Handle products with both colors and sizes
+    if (colorName && sizeName) {
+      const variant = product.variants.find(
+        v =>
+          v.color?.toLowerCase() === colorName.toLowerCase() &&
+          v.size?.toLowerCase() === sizeName.toLowerCase()
+      );
+      return variant?.sku || null;
+    }
+    // Handle products with sizes only (e.g., books: Paperback/Hardcover)
+    if (sizeName && !colorName) {
+      const variant = product.variants.find(
+        v => !v.color && v.size?.toLowerCase() === sizeName.toLowerCase()
+      );
+      return variant?.sku || null;
+    }
+    // Handle products with colors only
+    if (colorName && !sizeName) {
+      const variant = product.variants.find(
+        v => v.color?.toLowerCase() === colorName.toLowerCase() && !v.size
+      );
+      return variant?.sku || null;
+    }
+    return null;
+  };
+
   // Helper function to check if specific variant is in cart
   const isInCart = () => {
-    if (!product?.sku || selectedColor === null || !selectedSize) {
-      return false;
-    }
-    const color = product.colors[selectedColor]?.name;
-    if (!color) return false;
+    if (!product?.sku) return false;
 
-    const variantSku = `${product.sku}-${color.toUpperCase()}-${selectedSize.toUpperCase()}`;
+    const hasColors = product.colors?.length > 0;
+    const hasSizes = product.sizes?.length > 0;
+
+    if (hasColors && selectedColor === null) return false;
+    if (hasSizes && !selectedSize) return false;
+
+    const color = hasColors ? product.colors[selectedColor]?.name : null;
+
+    // Use variant SKU from product data
+    const variantSku = getVariantSku(color, selectedSize);
+    if (!variantSku) return false;
     return cartItems.some(item => item.sku === variantSku);
   };
 
@@ -176,6 +213,7 @@ const ProductDetailPage = () => {
             subcategory: p.subcategory,
             colors: convertColorsToObjects(p.colors || []),
             sizes: p.sizes || [],
+            variants: p.variants || [], // Include variant SKUs from API
             specifications: p.specifications || {},
             inStock: true,
           };
@@ -205,16 +243,33 @@ const ProductDetailPage = () => {
   // Fetch inventory for selected variant
   useEffect(() => {
     const fetchVariantInventory = async () => {
-      if (!product?.sku || selectedColor === null || !selectedSize) {
+      if (!product?.sku) {
         setVariantInventory(null);
         return;
       }
 
-      const color = product.colors[selectedColor]?.name;
-      if (!color) return;
+      const hasColors = product.colors?.length > 0;
+      const hasSizes = product.sizes?.length > 0;
 
-      // Generate variant SKU: BASE-COLOR-SIZE
-      const variantSku = `${product.sku}-${color.toUpperCase()}-${selectedSize.toUpperCase()}`;
+      // Need at least one selection to look up variant
+      if (hasColors && selectedColor === null) {
+        setVariantInventory(null);
+        return;
+      }
+      if (hasSizes && !selectedSize) {
+        setVariantInventory(null);
+        return;
+      }
+
+      const color = hasColors ? product.colors[selectedColor]?.name : null;
+
+      // Look up variant SKU from product data (not generated)
+      const variantSku = getVariantSku(color, selectedSize);
+      if (!variantSku) {
+        console.warn('No variant found for:', { color, size: selectedSize });
+        setVariantInventory({ quantityAvailable: 0 });
+        return;
+      }
 
       console.log('Fetching inventory for variant SKU:', variantSku);
 
@@ -242,36 +297,42 @@ const ProductDetailPage = () => {
     };
 
     fetchVariantInventory();
-  }, [product?.sku, product?.colors, selectedColor, selectedSize]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    product?.sku,
+    product?.colors,
+    product?.variants,
+    selectedColor,
+    selectedSize,
+  ]);
 
   // Handle cart actions
   const handleAddToCart = async () => {
     if (product) {
       try {
+        // Get selected color and size
+        const colorName =
+          product.colors?.length > 0 && selectedColor !== null
+            ? product.colors[selectedColor].name
+            : null;
+        const sizeName =
+          product.sizes?.length > 0 && selectedSize ? selectedSize : null;
+
+        // Look up variant SKU from product data
+        const variantSku = getVariantSku(colorName, sizeName);
+
         const cartItem = {
           product: {
             id: product.id,
             name: product.name,
             price: product.price,
-            sku: product.sku, // Include base SKU for variant SKU generation
+            sku: variantSku || product.sku, // Use variant SKU if available, else base SKU
             image: product.images[selectedImage],
+            selectedColor: colorName,
+            selectedSize: sizeName,
           },
           quantity: quantity,
         };
-
-        // Add selected color if available
-        if (
-          product.colors &&
-          product.colors.length > 0 &&
-          selectedColor !== null
-        ) {
-          cartItem.product.selectedColor = product.colors[selectedColor].name;
-        }
-
-        // Add selected size if available
-        if (product.sizes && product.sizes.length > 0 && selectedSize) {
-          cartItem.product.selectedSize = selectedSize;
-        }
 
         await dispatch(addToCartAsync(cartItem)).unwrap();
 
@@ -294,8 +355,11 @@ const ProductDetailPage = () => {
       const color = product.colors[selectedColor]?.name;
       if (!color) return;
 
-      const variantSku = `${product.sku}-${color.toUpperCase()}-${selectedSize.toUpperCase()}`;
-      dispatch(removeFromCartAsync(variantSku));
+      // Use variant SKU from product data (not generated)
+      const variantSku = getVariantSku(color, selectedSize);
+      if (variantSku) {
+        dispatch(removeFromCartAsync(variantSku));
+      }
     }
   };
 

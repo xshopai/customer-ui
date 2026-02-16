@@ -131,6 +131,7 @@ const CheckoutPage = () => {
           productId: item.id,
           productName: item.name,
           productImageUrl: item.image || item.imageUrl,
+          sku: item.sku, // Include SKU for inventory tracking
           unitPrice: item.price,
           quantity: item.quantity,
         })),

@@ -1,12 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
-import { useSelector, useDispatch } from 'react-redux';
-import {
-  addToCartAsync,
-  removeFromCartAsync,
-  openCart,
-} from '../store/slices/cartSlice';
+
 import StarRating from '../components/ui/StarRating';
 import Paginator from '../components/ui/Paginator';
 import bffClient from '../api/bffClient';
@@ -93,8 +88,6 @@ const getCategoryFilters = (department, category, subcategory) => {
 const ProductListPage = ({ category: propCategory }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const cartItems = useSelector(state => state.cart.items);
 
   // Get filter values from query params
   const department = searchParams.get('department') || propCategory;
@@ -120,7 +113,7 @@ const ProductListPage = ({ category: propCategory }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [totalCount, setTotalCount] = useState(0);
-  const [favorites, setFavorites] = useState(new Set());
+
   const [filters, setFilters] = useState({
     price: new Set(),
     color: new Set(),
@@ -320,109 +313,6 @@ const ProductListPage = ({ category: propCategory }) => {
 
   // Get breadcrumbs for navigation
   const breadcrumbs = getBreadcrumbs(department, category, subcategory);
-
-  // Helper functions
-  const isInCart = productId => {
-    return cartItems.some(item => item.id === productId);
-  };
-
-  const toggleFavorite = productId => {
-    setFavorites(prev => {
-      const newFavorites = new Set(prev);
-      if (newFavorites.has(productId)) {
-        newFavorites.delete(productId);
-      } else {
-        newFavorites.add(productId);
-      }
-      return newFavorites;
-    });
-  };
-
-  const handleCartAction = product => {
-    console.log('handleCartAction called:', {
-      productId: product.id,
-      productName: product.name,
-      inStock: product.inStock,
-      availableQuantity: product.availableQuantity,
-      isInCart: isInCart(product.id),
-    });
-
-    if (isInCart(product.id)) {
-      // Find the cart item to get its SKU (API requires SKU, not product ID)
-      const cartItem = cartItems.find(item => item.id === product.id);
-      if (cartItem && cartItem.sku) {
-        console.log('Removing product from cart:', {
-          productId: product.id,
-          sku: cartItem.sku,
-        });
-        dispatch(removeFromCartAsync(cartItem.sku));
-      } else {
-        console.error(
-          'Cannot remove: cart item or SKU not found for product:',
-          product.id
-        );
-      }
-    } else {
-      // For products with variants, select first available color/size
-      // Users can change variant in cart sidebar/page
-      const productToAdd = { ...product };
-
-      // If product has colors but no color selected, use first color
-      if (
-        !productToAdd.selectedColor &&
-        product.colors &&
-        product.colors.length > 0
-      ) {
-        productToAdd.selectedColor = product.colors[0];
-      }
-
-      // If product has sizes but no size selected, use first size
-      if (
-        !productToAdd.selectedSize &&
-        product.sizes &&
-        product.sizes.length > 0
-      ) {
-        productToAdd.selectedSize = product.sizes[0];
-      }
-
-      console.log('Adding product to cart with default variant:', {
-        product: {
-          id: productToAdd.id,
-          name: productToAdd.name,
-          price: productToAdd.price,
-          inStock: productToAdd.inStock,
-          selectedColor: productToAdd.selectedColor,
-          selectedSize: productToAdd.selectedSize,
-        },
-        quantity: 1,
-      });
-
-      dispatch(addToCartAsync({ product: productToAdd, quantity: 1 }))
-        .unwrap()
-        .then(() => {
-          console.log('Product added to cart successfully');
-          // Open cart sidebar only on desktop (lg and above)
-          if (window.innerWidth >= 1024) {
-            dispatch(openCart());
-          }
-        })
-        .catch(error => {
-          console.error('Failed to add product to cart:', {
-            error,
-            errorMessage: error?.message,
-            errorData: error?.data,
-            product: {
-              id: productToAdd.id,
-              name: productToAdd.name,
-              inStock: productToAdd.inStock,
-              availableQuantity: productToAdd.availableQuantity,
-              selectedColor: productToAdd.selectedColor,
-              selectedSize: productToAdd.selectedSize,
-            },
-          });
-        });
-    }
-  };
 
   const handleProductClick = productId => {
     navigate(`/products/${productId}`);
@@ -884,12 +774,13 @@ const ProductListPage = ({ category: propCategory }) => {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mb-12">
               {sortedProducts.map(product => (
-                <div key={product.id} className="group">
+                <div
+                  key={product.id}
+                  className="group cursor-pointer"
+                  onClick={() => handleProductClick(product.id)}
+                >
                   <div className="relative">
-                    <div
-                      className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4 relative cursor-pointer"
-                      onClick={() => handleProductClick(product.id)}
-                    >
+                    <div className="aspect-square bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden mb-4 relative">
                       <img
                         src={product.image}
                         alt={product.name}
@@ -903,156 +794,20 @@ const ProductListPage = ({ category: propCategory }) => {
                         badge={product.badge}
                         inStock={product.inStock}
                       />
+                      {!product.inStock && (
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/30">
+                          <span className="bg-white/90 dark:bg-gray-900/90 text-gray-900 dark:text-white text-sm font-semibold px-4 py-2 rounded-lg shadow">
+                            Out of Stock
+                          </span>
+                        </div>
+                      )}
                     </div>
-
-                    {/* Action buttons */}
-                    {product.inStock && (
-                      <>
-                        <button
-                          onClick={() => toggleFavorite(product.id)}
-                          className="absolute top-3 right-3 p-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm rounded-full hover:bg-white dark:hover:bg-gray-800 transition-colors z-10"
-                          aria-label={
-                            favorites.has(product.id)
-                              ? 'Remove from favorites'
-                              : 'Add to favorites'
-                          }
-                        >
-                          <svg
-                            className={`w-4 h-4 ${favorites.has(product.id) ? 'fill-red-500 text-red-500' : 'fill-none text-gray-600 dark:text-gray-400'}`}
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"
-                            />
-                          </svg>
-                        </button>
-
-                        {/* Desktop: Full button with hover effect */}
-                        <button
-                          onClick={() => handleCartAction(product)}
-                          disabled={!product.inStock && !isInCart(product.id)}
-                          className={`hidden md:block absolute bottom-3 left-1/2 transform -translate-x-1/2 px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 ${
-                            !product.inStock && !isInCart(product.id)
-                              ? 'bg-gray-300 dark:bg-gray-700 text-gray-500 dark:text-gray-400 cursor-not-allowed'
-                              : isInCart(product.id)
-                                ? 'bg-green-500 hover:bg-red-500 text-white'
-                                : 'bg-white/90 dark:bg-gray-800/90 text-gray-900 dark:text-white hover:bg-white dark:hover:bg-gray-800 shadow-md'
-                          }`}
-                          title={
-                            !product.inStock && !isInCart(product.id)
-                              ? 'Out of stock'
-                              : isInCart(product.id)
-                                ? 'Click to remove from cart'
-                                : 'Add to cart'
-                          }
-                        >
-                          {isInCart(product.id) ? (
-                            <div className="flex items-center space-x-1">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                                />
-                              </svg>
-                              <span>Remove</span>
-                            </div>
-                          ) : (
-                            <div className="flex items-center space-x-1">
-                              <svg
-                                className="w-4 h-4"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293a1 1 0 00-.293.707V19a2 2 0 002 2h10a2 2 0 002-2v-2.586a1 1 0 00-.293-.707L16 13"
-                                />
-                              </svg>
-                              <span>
-                                {!product.inStock
-                                  ? 'Out of Stock'
-                                  : 'Add to Cart'}
-                              </span>
-                            </div>
-                          )}
-                        </button>
-
-                        {/* Mobile: Compact cart icon button in bottom-right */}
-                        <button
-                          onClick={() => handleCartAction(product)}
-                          disabled={!product.inStock && !isInCart(product.id)}
-                          className={`md:hidden absolute bottom-2 right-2 p-2 rounded-full transition-all duration-200 shadow-lg ${
-                            !product.inStock && !isInCart(product.id)
-                              ? 'bg-gray-300 dark:bg-gray-700 text-gray-400 cursor-not-allowed'
-                              : isInCart(product.id)
-                                ? 'bg-green-500 hover:bg-red-500 text-white'
-                                : 'bg-white/95 dark:bg-gray-800/95 text-gray-700 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800'
-                          }`}
-                          title={
-                            !product.inStock && !isInCart(product.id)
-                              ? 'Out of stock'
-                              : isInCart(product.id)
-                                ? 'Remove from cart'
-                                : 'Add to cart'
-                          }
-                        >
-                          {isInCart(product.id) ? (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M5 13l4 4L19 7"
-                              />
-                            </svg>
-                          ) : (
-                            <svg
-                              className="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-2.293 2.293a1 1 0 00-.293.707V19a2 2 0 002 2h10a2 2 0 002-2v-2.586a1 1 0 00-.293-.707L16 13"
-                              />
-                            </svg>
-                          )}
-                        </button>
-                      </>
-                    )}
                   </div>
 
                   <h3
                     className={`text-sm font-medium mb-1 ${product.inStock ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}
                   >
                     {product.name}
-                    {!product.inStock && (
-                      <span className="text-xs text-red-500 ml-2">
-                        (Out of Stock)
-                      </span>
-                    )}
                   </h3>
 
                   <StarRating
