@@ -19,7 +19,8 @@ import axios from 'axios';
 
 const WEB_UI_URL = process.env.WEB_UI_URL || 'http://localhost:3000';
 const MAILPIT_URL = process.env.MAILPIT_URL || 'http://localhost:8025';
-const AUTH_SERVICE_URL = process.env.AUTH_SERVICE_URL || 'http://localhost:3001';
+const AUTH_SERVICE_URL =
+  process.env.AUTH_SERVICE_URL || 'http://localhost:8004';
 
 // Generate unique test data
 const generateTestEmail = () => `test.user.${Date.now()}@example.com`;
@@ -40,7 +41,9 @@ test.describe('User Registration E2E Workflow', () => {
     console.log(`\n🧪 Test Email: ${testEmail}\n`);
   });
 
-  test('should complete full registration workflow with email verification', async ({ page }) => {
+  test('should complete full registration workflow with email verification', async ({
+    page,
+  }) => {
     console.log('\n🚀 Starting Complete User Registration E2E Test\n');
 
     // ============================================================================
@@ -52,7 +55,9 @@ test.describe('User Registration E2E Workflow', () => {
     await expect(page).toHaveTitle(/xshopai/i);
 
     // Verify registration form is visible
-    await expect(page.getByRole('heading', { name: /register|sign up|create account/i })).toBeVisible();
+    await expect(
+      page.getByRole('heading', { name: /register|sign up|create account/i })
+    ).toBeVisible();
     console.log('✅ Registration page loaded');
 
     // ============================================================================
@@ -84,7 +89,9 @@ test.describe('User Registration E2E Workflow', () => {
     console.log('\n📋 Step 3: Submitting registration form...');
 
     // Click register button
-    await page.getByRole('button', { name: /register|sign up|create account/i }).click();
+    await page
+      .getByRole('button', { name: /register|sign up|create account/i })
+      .click();
 
     console.log('✅ Form submitted');
 
@@ -97,7 +104,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.waitForURL('**/registration-success', { timeout: 10000 });
 
     // Wait for success message to appear
-    await expect(page.getByText(/registration successful/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/registration successful/i)).toBeVisible({
+      timeout: 10000,
+    });
     await expect(page.getByText(/check your email/i)).toBeVisible();
 
     console.log('✅ Success message displayed');
@@ -115,34 +124,45 @@ test.describe('User Registration E2E Workflow', () => {
 
     while (!verificationEmail && attempts < maxAttempts) {
       attempts++;
-      console.log(`   Attempt ${attempts}/${maxAttempts}: Checking for email...`);
+      console.log(
+        `   Attempt ${attempts}/${maxAttempts}: Checking for email...`
+      );
 
       // Wait before checking
       await page.waitForTimeout(1000);
 
       try {
         // Query Mailpit API for emails to our test address
-        const mailpitResponse = await axios.get(`${MAILPIT_URL}/api/v1/messages`);
+        const mailpitResponse = await axios.get(
+          `${MAILPIT_URL}/api/v1/messages`
+        );
         expect(mailpitResponse.status).toBe(200);
 
         // Find the verification email
         verificationEmail = mailpitResponse.data.messages.find(
-          (msg) =>
+          msg =>
             msg.To &&
-            msg.To.some((recipient) => recipient.Address === testEmail) &&
+            msg.To.some(recipient => recipient.Address === testEmail) &&
             msg.Subject &&
             msg.Subject.includes('Verify')
         );
 
         if (!verificationEmail && attempts === maxAttempts) {
           // Log what emails we did find for debugging
-          console.log(`\n❌ Could not find verification email for ${testEmail}`);
-          console.log(`   Found ${mailpitResponse.data.messages.length} total messages in Mailpit`);
+          console.log(
+            `\n❌ Could not find verification email for ${testEmail}`
+          );
+          console.log(
+            `   Found ${mailpitResponse.data.messages.length} total messages in Mailpit`
+          );
           const recentEmails = mailpitResponse.data.messages.slice(0, 5);
           console.log(`   Recent emails:`);
           recentEmails.forEach((msg, idx) => {
-            const toAddresses = msg.To?.map((t) => t.Address).join(', ') || 'none';
-            console.log(`     ${idx + 1}. To: ${toAddresses}, Subject: ${msg.Subject}`);
+            const toAddresses =
+              msg.To?.map(t => t.Address).join(', ') || 'none';
+            console.log(
+              `     ${idx + 1}. To: ${toAddresses}, Subject: ${msg.Subject}`
+            );
           });
         }
       } catch (error) {
@@ -154,7 +174,9 @@ test.describe('User Registration E2E Workflow', () => {
     }
 
     expect(verificationEmail).toBeDefined();
-    console.log(`✅ Verification email received in Mailpit (after ${attempts} attempts)`);
+    console.log(
+      `✅ Verification email received in Mailpit (after ${attempts} attempts)`
+    );
     console.log(`   Subject: ${verificationEmail.Subject}`);
     console.log(`   To: ${testEmail}`);
 
@@ -164,12 +186,15 @@ test.describe('User Registration E2E Workflow', () => {
     console.log('\n📋 Step 6: Extracting verification link from email...');
 
     // Get email content
-    const emailContent = await axios.get(`${MAILPIT_URL}/api/v1/message/${verificationEmail.ID}`);
+    const emailContent = await axios.get(
+      `${MAILPIT_URL}/api/v1/message/${verificationEmail.ID}`
+    );
     const emailHtml = emailContent.data.HTML || emailContent.data.Text;
 
     // Extract verification link from email
     const verificationLinkMatch =
-      emailHtml.match(/href="([^"]*verify-email[^"]*)"/i) || emailHtml.match(/(https?:\/\/[^\s]+verify-email[^\s<]+)/i);
+      emailHtml.match(/href="([^"]*verify-email[^"]*)"/i) ||
+      emailHtml.match(/(https?:\/\/[^\s]+verify-email[^\s<]+)/i);
 
     expect(verificationLinkMatch).toBeTruthy();
     let verificationLink = verificationLinkMatch[1];
@@ -189,7 +214,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.goto(verificationLink);
 
     // Verify success message on verification page
-    await expect(page.getByText(/email verified|verification successful/i)).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText(/email verified|verification successful/i)
+    ).toBeVisible({ timeout: 10000 });
 
     console.log('✅ Email verified successfully');
 
@@ -263,7 +290,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.waitForURL('**/registration-success', { timeout: 10000 });
 
     // Wait for success message
-    await expect(page.getByText(/registration successful/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/registration successful/i)).toBeVisible({
+      timeout: 10000,
+    });
 
     console.log('✅ User registered successfully');
 
@@ -274,7 +303,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.getByRole('button', { name: /log in|sign in/i }).click();
 
     // Should see error message about email verification
-    await expect(page.getByText(/verify your email|email not verified/i)).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText(/verify your email|email not verified/i)
+    ).toBeVisible({ timeout: 10000 });
 
     console.log('✅ Unverified user prevented from logging in');
     console.log('✅ Appropriate error message displayed');
@@ -295,7 +326,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.getByRole('button', { name: /register|sign up/i }).click();
 
     // Should show validation error
-    await expect(page.getByText(/invalid email|valid email/i)).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/invalid email|valid email/i)).toBeVisible({
+      timeout: 5000,
+    });
 
     console.log('✅ Invalid email validation working');
 
@@ -307,7 +340,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.getByRole('button', { name: /register|sign up/i }).click();
 
     // Should show password mismatch error
-    await expect(page.getByText(/passwords.*match|password.*same/i)).toBeVisible({ timeout: 5000 });
+    await expect(
+      page.getByText(/passwords.*match|password.*same/i)
+    ).toBeVisible({ timeout: 5000 });
 
     console.log('✅ Password mismatch validation working');
   }, 30000);
@@ -330,7 +365,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.waitForURL('**/registration-success', { timeout: 10000 });
 
     // Wait for success
-    await expect(page.getByText(/registration successful/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/registration successful/i)).toBeVisible({
+      timeout: 10000,
+    });
     console.log('✅ First registration successful');
 
     // Wait a bit to ensure data is persisted
@@ -348,7 +385,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.getByRole('button', { name: /register|sign up/i }).click();
 
     // Should see error about duplicate email
-    await expect(page.getByText(/already exists|already registered|email.*taken/i)).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText(/already exists|already registered|email.*taken/i)
+    ).toBeVisible({ timeout: 10000 });
 
     console.log('✅ Duplicate email registration prevented');
     console.log('✅ Appropriate error message displayed');
@@ -375,7 +414,9 @@ test.describe('User Registration E2E Workflow', () => {
     console.log('✅ All form labels present and accessible');
 
     // Check for submit button
-    const submitButton = page.getByRole('button', { name: /register|sign up/i });
+    const submitButton = page.getByRole('button', {
+      name: /register|sign up/i,
+    });
     await expect(submitButton).toBeVisible();
     await expect(submitButton).toBeEnabled();
 
@@ -386,7 +427,7 @@ test.describe('User Registration E2E Workflow', () => {
     console.log('\n🧪 Testing network error handling\n');
 
     // Block API requests to simulate network error
-    await page.route('**/api/auth/register', (route) => route.abort());
+    await page.route('**/api/auth/register', route => route.abort());
 
     await page.goto(`${WEB_UI_URL}/register`);
     await page.getByLabel(/first name/i).fill(testFirstName);
@@ -400,7 +441,9 @@ test.describe('User Registration E2E Workflow', () => {
     await page.getByRole('button', { name: /register|sign up/i }).click();
 
     // Should show error message
-    await expect(page.getByText(/error|failed|try again/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/error|failed|try again/i)).toBeVisible({
+      timeout: 10000,
+    });
 
     console.log('✅ Network error handled gracefully');
     console.log('✅ User-friendly error message displayed');
@@ -412,10 +455,14 @@ test.describe('Email Verification Link Security', () => {
     console.log('\n🧪 Testing expired token handling\n');
 
     // Try to verify with an obviously invalid/expired token
-    await page.goto(`${WEB_UI_URL}/verify-email?token=expired.or.invalid.token`);
+    await page.goto(
+      `${WEB_UI_URL}/verify-email?token=expired.or.invalid.token`
+    );
 
     // Should show error message
-    await expect(page.getByText(/invalid|expired|verification failed/i)).toBeVisible({ timeout: 10000 });
+    await expect(
+      page.getByText(/invalid|expired|verification failed/i)
+    ).toBeVisible({ timeout: 10000 });
 
     console.log('✅ Expired/invalid token rejected');
     console.log('✅ Appropriate error message displayed');
@@ -428,7 +475,9 @@ test.describe('Email Verification Link Security', () => {
     await page.goto(`${WEB_UI_URL}/verify-email?token=malformed-token`);
 
     // Should show error message
-    await expect(page.getByText(/invalid|verification failed/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/invalid|verification failed/i)).toBeVisible({
+      timeout: 10000,
+    });
 
     console.log('✅ Malformed token rejected');
   }, 20000);

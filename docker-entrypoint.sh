@@ -5,7 +5,7 @@
 set -e
 
 # Default BFF URL if not set
-BFF_URL=${BFF_URL:-"http://localhost:3100"}
+BFF_URL=${BFF_URL:-"http://localhost:8014"}
 
 # Extract hostname from BFF_URL for the Host header
 # Removes protocol (http:// or https://) and any trailing path/port

@@ -81,7 +81,7 @@ npm run format     # Prettier formatting
 ### Mock Data Strategy
 
 - Static data in `src/data/` for products, orders, reviews
-- BFF client points to `process.env.REACT_APP_BFF_URL` or localhost:3100
+- BFF client points to `process.env.REACT_APP_BFF_URL` or localhost:8014
 - Easy swap to real backend by changing BFF URL
 
 ## Examples

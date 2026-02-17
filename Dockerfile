@@ -88,7 +88,7 @@ USER nginx-app
 EXPOSE 80
 
 # Environment variable for BFF URL (can be overridden at runtime)
-ENV BFF_URL=http://localhost:3100
+ENV BFF_URL=http://localhost:8014
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \

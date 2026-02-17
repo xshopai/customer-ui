@@ -40,7 +40,7 @@ Create a `.env` file in the project root:
 ```env
 # Development Environment
 PORT=3000
-REACT_APP_BFF_URL=http://localhost:3100
+REACT_APP_BFF_URL=http://localhost:8014
 ```
 
 ### Environment Variables
@@ -48,7 +48,7 @@ REACT_APP_BFF_URL=http://localhost:3100
 | Variable            | Default                 | Description             |
 | ------------------- | ----------------------- | ----------------------- |
 | `PORT`              | `3000`                  | Development server port |
-| `REACT_APP_BFF_URL` | `http://localhost:3100` | Web BFF URL             |
+| `REACT_APP_BFF_URL` | `http://localhost:8014` | Web BFF URL             |
 
 ## Development Server
 

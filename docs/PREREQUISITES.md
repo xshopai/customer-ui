@@ -105,7 +105,7 @@ az account show
 
 ```env
 PORT=3000
-REACT_APP_BFF_URL=http://localhost:3100
+REACT_APP_BFF_URL=http://localhost:8014
 ```
 
 ### Production
