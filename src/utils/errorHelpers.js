@@ -124,10 +124,12 @@ export function isAuthError(error) {
   return status === 401 || status === 403;
 }
 
-export default {
+const errorHelpers = {
   parseApiError,
   getErrorMessage,
   isNetworkError,
   isAuthError,
   ERROR_MESSAGE_MAP,
 };
+
+export default errorHelpers;

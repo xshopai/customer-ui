@@ -23,6 +23,7 @@ const OrderDetailsPage = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [cancelError, setCancelError] = useState(null);
   const [returnEligibility, setReturnEligibility] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [checkingEligibility, setCheckingEligibility] = useState(false);
 
   useEffect(() => {

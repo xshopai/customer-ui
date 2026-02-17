@@ -4,7 +4,7 @@
  */
 import axios from 'axios';
 import { getToken, setToken, clearAuth } from '../utils/storage';
-import { parseApiError, requiresReAuth } from '../utils/errorMessages';
+import { parseApiError } from '../utils/errorMessages';
 
 // BFF Configuration
 // - For Azure Container Apps: Use relative URL (nginx proxies /api to web-bff)

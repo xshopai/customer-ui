@@ -22,6 +22,7 @@ const RETURN_REASONS = [
 const ReturnRequestPage = () => {
   const { orderId } = useParams();
   const navigate = useNavigate();
+  // eslint-disable-next-line no-unused-vars
   const location = useLocation();
   const [order, setOrder] = useState(null);
   const [eligibility, setEligibility] = useState(null);

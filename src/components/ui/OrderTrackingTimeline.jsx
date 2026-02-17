@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import {
   CheckCircleIcon,
   ClockIcon,
@@ -104,6 +105,18 @@ const OrderTrackingTimeline = ({ timeline }) => {
       </div>
     </div>
   );
+};
+
+OrderTrackingTimeline.propTypes = {
+  timeline: PropTypes.arrayOf(
+    PropTypes.shape({
+      status: PropTypes.string.isRequired,
+      description: PropTypes.string,
+      timestamp: PropTypes.string,
+      location: PropTypes.string,
+      isCompleted: PropTypes.bool,
+    })
+  ),
 };
 
 export default OrderTrackingTimeline;

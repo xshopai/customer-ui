@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLocation, useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { clearCart } from '../store/slices/cartSlice';
+import { clearCartAsync } from '../store/slices/cartSlice';
 import {
   CheckCircleIcon,
   TruckIcon,
@@ -15,13 +15,20 @@ const OrderSuccessPage = () => {
   const dispatch = useDispatch();
   const orderData = location.state;
 
+  // Track if cart clear has been attempted to avoid duplicate calls
+  const cartCleared = useRef(false);
+
   useEffect(() => {
     // Redirect to home if no order data
     if (!orderData) {
       navigate('/');
-    } else {
-      // Clear cart after order is successfully placed
-      dispatch(clearCart());
+    } else if (!cartCleared.current) {
+      // Clear cart from backend (Redis) as a defensive measure
+      // This ensures cart is cleared even if the CheckoutPage clear failed
+      cartCleared.current = true;
+      dispatch(clearCartAsync()).catch(err => {
+        console.warn('Failed to clear cart on success page:', err);
+      });
     }
   }, [orderData, navigate, dispatch]);
 

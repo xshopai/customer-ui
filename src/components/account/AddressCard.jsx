@@ -106,6 +106,7 @@ const AddressCard = ({ address, onEdit, onDelete, onSetDefault }) => {
 AddressCard.propTypes = {
   address: PropTypes.shape({
     _id: PropTypes.string.isRequired,
+    fullName: PropTypes.string,
     type: PropTypes.string,
     addressLine1: PropTypes.string.isRequired,
     addressLine2: PropTypes.string,

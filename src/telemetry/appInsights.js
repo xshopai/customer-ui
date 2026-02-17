@@ -189,7 +189,7 @@ export function flushTelemetry() {
 }
 
 // Export default instance getter for convenience
-export default {
+const appInsightsService = {
   initialize: initializeAppInsights,
   getInstance: getAppInsights,
   getReactPlugin,
@@ -201,3 +201,5 @@ export default {
   clearAuthenticatedUser,
   flush: flushTelemetry,
 };
+
+export default appInsightsService;

@@ -159,7 +159,14 @@ const CheckoutPage = () => {
 
       if (response.success) {
         toast.success('Order placed successfully!');
-        dispatch(clearCartAsync());
+
+        // Clear the cart from backend (Redis) before navigating
+        try {
+          await dispatch(clearCartAsync()).unwrap();
+        } catch (clearError) {
+          console.warn('Failed to clear cart after order:', clearError);
+          // Don't block navigation - cart will eventually expire
+        }
 
         // Navigate to success page with order data
         navigate('/order-success', {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   ArrowLeftIcon,
@@ -38,15 +38,13 @@ const ReturnDetailsPage = () => {
   const [returnData, setReturnData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  // successMessage is set from navigation state, not updated
+  // eslint-disable-next-line no-unused-vars
   const [successMessage, setSuccessMessage] = useState(
     location.state?.message || null
   );
 
-  useEffect(() => {
-    fetchReturn();
-  }, [returnId]);
-
-  const fetchReturn = async () => {
+  const fetchReturn = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -63,7 +61,11 @@ const ReturnDetailsPage = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [returnId]);
+
+  useEffect(() => {
+    fetchReturn();
+  }, [fetchReturn]);
 
   // Format date
   const formatDate = dateString => {

@@ -8,7 +8,6 @@ import {
   TrashIcon,
   StarIcon,
 } from '@heroicons/react/24/outline';
-import { StarIcon as StarIconSolid } from '@heroicons/react/24/solid';
 import Paginator from '../components/ui/Paginator';
 import StarRating from '../components/ui/StarRating';
 import bffClient from '../api/bffClient';

@@ -85,11 +85,13 @@ export const checkReturnEligibility = async orderId => {
   return response.data;
 };
 
-// Export all functions as default
-export default {
+// Export all functions as named object
+const returnsAPI = {
   createReturn,
   getMyReturns,
   getReturnById,
   getReturnsByOrder,
   checkReturnEligibility,
 };
+
+export default returnsAPI;
