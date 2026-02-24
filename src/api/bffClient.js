@@ -28,12 +28,6 @@ bffClient.interceptors.request.use(
   config => {
     // Add auth token
     const token = getToken();
-    console.log('🔑 bffClient interceptor:', {
-      url: config.url,
-      method: config.method,
-      hasToken: !!token,
-      tokenPreview: token ? `${token.substring(0, 20)}...` : 'none',
-    });
 
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
