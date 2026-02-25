@@ -62,7 +62,9 @@ test.describe('Landing Page - Homepage', () => {
 
   test('should display Why Choose Us section', async ({ page }) => {
     // Scroll the why choose us section into view
-    const whyChooseHeading = page.getByText(/why choose|features|benefits/i).first();
+    const whyChooseHeading = page
+      .getByText(/why choose|features|benefits/i)
+      .first();
     await whyChooseHeading.scrollIntoViewIfNeeded();
 
     // Verify it's visible
@@ -75,7 +77,7 @@ test.describe('Landing Page - Homepage', () => {
     await expect(header).toBeVisible();
 
     // Check for logo/brand link
-    const logo = page.getByRole('link', { name: /xshopai|home/i }).first();
+    const logo = page.getByRole('link', { name: /xshop\.ai|home/i }).first();
     await expect(logo).toBeVisible();
 
     // Check for search functionality (if present)
@@ -99,7 +101,9 @@ test.describe('Landing Page - Homepage', () => {
     expect(linkCount).toBeGreaterThan(0);
   });
 
-  test('should allow user to click on a product and navigate to detail page', async ({ page }) => {
+  test('should allow user to click on a product and navigate to detail page', async ({
+    page,
+  }) => {
     // Wait for network to be idle
     await page.waitForLoadState('networkidle');
 
@@ -108,7 +112,9 @@ test.describe('Landing Page - Homepage', () => {
     await trendingHeading.scrollIntoViewIfNeeded();
 
     // Wait for first product article to be visible
-    const firstProductButton = page.locator('article button:has-text("View Details")').first();
+    const firstProductButton = page
+      .locator('article button:has-text("View Details")')
+      .first();
     await firstProductButton.waitFor({ state: 'visible', timeout: 10000 });
 
     // Click the View Details button
@@ -157,7 +163,7 @@ test.describe('Landing Page - Homepage', () => {
     const consoleErrors = [];
 
     // Listen for console errors
-    page.on('console', (msg) => {
+    page.on('console', msg => {
       if (msg.type() === 'error') {
         consoleErrors.push(msg.text());
       }
@@ -170,7 +176,7 @@ test.describe('Landing Page - Homepage', () => {
     // Assert no console errors (or only expected ones)
     // You might want to filter out known third-party errors
     const criticalErrors = consoleErrors.filter(
-      (error) => !error.includes('favicon') && !error.includes('third-party')
+      error => !error.includes('favicon') && !error.includes('third-party')
     );
 
     expect(criticalErrors.length).toBe(0);
