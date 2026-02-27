@@ -8,12 +8,18 @@ echo ""
 echo "Note: Make sure web-bff is running at http://localhost:8014"
 echo ""
 
-# Copy .env.http to .env for local development (HTTP mode, no Dapr)
+# Copy .env.http to .env only if .env doesn't already exist.
+# This ensures a working default on a fresh clone while preserving
+# any local customisations on repeat runs.
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SERVICE_DIR="$(dirname "$SCRIPT_DIR")"
-if [ -f "$SERVICE_DIR/.env.http" ]; then
-    cp "$SERVICE_DIR/.env.http" "$SERVICE_DIR/.env"
-    echo "✅ Copied .env.http → .env"
+if [ ! -f "$SERVICE_DIR/.env" ]; then
+    if [ -f "$SERVICE_DIR/.env.http" ]; then
+        cp "$SERVICE_DIR/.env.http" "$SERVICE_DIR/.env"
+        echo "✅ Copied .env.http → .env"
+    fi
+else
+    echo "ℹ️  .env already exists — skipping copy"
 fi
 
 # Install dependencies if node_modules doesn't exist
