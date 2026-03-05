@@ -23,14 +23,14 @@ test.describe('Checkout E2E', () => {
     await page.waitForLoadState('networkidle');
 
     // Step 2 — Fill shipping information
-    const firstNameInput = page.locator('[name="firstName"]');
-    if (await firstNameInput.isVisible({ timeout: 5000 })) {
-      await firstNameInput.fill('Test');
-      await page.fill('[name="lastName"]', 'User');
+    const fullNameInput = page.locator('[name="fullName"]');
+    if (await fullNameInput.isVisible({ timeout: 5000 })) {
+      await fullNameInput.fill('Test User');
       await page.fill('[name="email"]', 'test@example.com');
-      await page.fill('[name="address"]', '123 Test Street');
+      await page.fill('[name="phone"]', '07123 456789');
+      await page.fill('[name="addressLine1"]', '123 Test Street');
       await page.fill('[name="city"]', 'Test City');
-      await page.fill('[name="zipCode"]', '12345');
+      await page.fill('[name="postcode"]', 'SW1A 1AA');
     }
 
     // Step 3 — Enter payment details (if on same page)

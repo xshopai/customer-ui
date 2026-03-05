@@ -22,7 +22,7 @@ module.exports = defineConfig({
   ],
   webServer: {
     command: 'npm start',
-    port: 3000,
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: { BROWSER: 'none' },
