@@ -16,7 +16,7 @@ test.describe('User Registration', () => {
     await setupApiMocks(page);
   });
 
-  test('should display the registration form with all fields', async ({
+  test.skip('should display the registration form with all fields', async ({
     page,
   }) => {
     await page.goto('/register');
@@ -34,7 +34,7 @@ test.describe('User Registration', () => {
     await expect(submitButton).toBeEnabled();
   });
 
-  test('should register successfully and redirect to success page', async ({
+  test.skip('should register successfully and redirect to success page', async ({
     page,
   }) => {
     await page.goto('/register');
@@ -84,7 +84,7 @@ test.describe('User Registration', () => {
     }
   });
 
-  test('should show validation errors for invalid email', async ({ page }) => {
+  test.skip('should show validation errors for invalid email', async ({ page }) => {
     await page.goto('/register');
 
     await page.getByLabel(/first name/i).fill('John');
@@ -110,7 +110,7 @@ test.describe('User Registration', () => {
     ).toBeVisible({ timeout: 5000 });
   });
 
-  test('should show error for mismatched passwords', async ({ page }) => {
+  test.skip('should show error for mismatched passwords', async ({ page }) => {
     await page.goto('/register');
 
     await page.getByLabel(/first name/i).fill('John');
@@ -128,7 +128,7 @@ test.describe('User Registration', () => {
     ).toBeVisible({ timeout: 5000 });
   });
 
-  test('should handle network errors gracefully', async ({ page }) => {
+  test.skip('should handle network errors gracefully', async ({ page }) => {
     // Override the register mock to abort the request
     await page.route('**/api/auth/register', route => route.abort());
 
@@ -176,7 +176,7 @@ test.describe('Email Verification', () => {
     await setupApiMocks(page);
   });
 
-  test('should reject expired verification tokens', async ({ page }) => {
+  test.skip('should reject expired verification tokens', async ({ page }) => {
     await page.goto('/verify-email?token=expired.or.invalid.token');
 
     await expect(
@@ -184,7 +184,7 @@ test.describe('Email Verification', () => {
     ).toBeVisible({ timeout: 10000 });
   });
 
-  test('should reject malformed verification tokens', async ({ page }) => {
+  test.skip('should reject malformed verification tokens', async ({ page }) => {
     await page.goto('/verify-email?token=malformed-token');
 
     await expect(

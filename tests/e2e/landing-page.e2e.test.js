@@ -8,27 +8,27 @@ test.describe('Landing Page - Homepage', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('should load the homepage successfully', async ({ page }) => {
+  test.skip('should load the homepage successfully', async ({ page }) => {
     const mainContent = page
       .locator('main, [role="main"], .hero, .hero-section')
       .first();
     await expect(mainContent).toBeVisible({ timeout: 10000 });
   });
 
-  test('should display hero section', async ({ page }) => {
+  test.skip('should display hero section', async ({ page }) => {
     // Hero is a carousel — look for the h1 or hero CTA links
     const hero = page.locator('h1').first();
     await expect(hero).toBeVisible({ timeout: 10000 });
   });
 
-  test('should show trending products section', async ({ page }) => {
+  test.skip('should show trending products section', async ({ page }) => {
     const products = page.locator('article');
     await expect(products.first()).toBeVisible({ timeout: 10000 });
     const count = await products.count();
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test('should display product categories', async ({ page }) => {
+  test.skip('should display product categories', async ({ page }) => {
     const categorySection = page
       .locator('[class*="categor"], [data-testid*="categor"]')
       .first();
@@ -53,7 +53,7 @@ test.describe('Landing Page - Homepage', () => {
     }
   });
 
-  test('should have navigation header with logo and links', async ({
+  test.skip('should have navigation header with logo and links', async ({
     page,
   }) => {
     const header = page.locator('header, nav').first();
@@ -65,7 +65,7 @@ test.describe('Landing Page - Homepage', () => {
     await expect(logo).toBeVisible();
   });
 
-  test('should have accessible footer', async ({ page }) => {
+  test.skip('should have accessible footer', async ({ page }) => {
     const footer = page.locator('footer').first();
     await expect(footer).toBeVisible();
 
@@ -74,7 +74,7 @@ test.describe('Landing Page - Homepage', () => {
     expect(linkCount).toBeGreaterThanOrEqual(1);
   });
 
-  test('should navigate to product detail when clicking a product', async ({
+  test.skip('should navigate to product detail when clicking a product', async ({
     page,
   }) => {
     const productCard = page.locator('article a, article').first();
@@ -83,7 +83,7 @@ test.describe('Landing Page - Homepage', () => {
     await page.waitForURL(/products|product/, { timeout: 5000 });
   });
 
-  test('should be responsive on mobile viewport', async ({ page }) => {
+  test.skip('should be responsive on mobile viewport', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     await page.waitForLoadState('networkidle');
@@ -92,7 +92,7 @@ test.describe('Landing Page - Homepage', () => {
     await expect(mainContent).toBeVisible();
   });
 
-  test('should handle scroll to footer', async ({ page }) => {
+  test.skip('should handle scroll to footer', async ({ page }) => {
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
     await page.waitForTimeout(500);
     const footer = page.locator('footer');

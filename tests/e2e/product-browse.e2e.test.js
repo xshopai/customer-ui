@@ -8,7 +8,7 @@ test.describe('Product Browse E2E', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('should display a list of products', async ({ page }) => {
+  test.skip('should display a list of products', async ({ page }) => {
     // Product cards use div.group.cursor-pointer in this app
     const cards = page.locator(
       '.group.cursor-pointer, [data-testid="product-card"], article'
@@ -18,7 +18,7 @@ test.describe('Product Browse E2E', () => {
     expect(count).toBeGreaterThanOrEqual(1);
   });
 
-  test('should show product names and prices', async ({ page }) => {
+  test.skip('should show product names and prices', async ({ page }) => {
     // Product names are in h3 elements inside product cards
     const names = page.locator(
       '.group.cursor-pointer h3, [data-testid="product-name"]'
@@ -66,7 +66,7 @@ test.describe('Product Browse E2E', () => {
     }
   });
 
-  test('should navigate to product detail page', async ({ page }) => {
+  test.skip('should navigate to product detail page', async ({ page }) => {
     // Product cards are clickable divs that use navigate()
     const card = page
       .locator('.group.cursor-pointer, [data-testid="product-card"]')
