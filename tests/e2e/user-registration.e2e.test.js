@@ -84,7 +84,9 @@ test.describe('User Registration', () => {
     }
   });
 
-  test.skip('should show validation errors for invalid email', async ({ page }) => {
+  test.skip('should show validation errors for invalid email', async ({
+    page,
+  }) => {
     await page.goto('/register');
 
     await page.getByLabel(/first name/i).fill('John');

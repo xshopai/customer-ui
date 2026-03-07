@@ -12,6 +12,10 @@ module.exports = defineConfig(
     credential: new DefaultAzureCredential(),
   }),
   {
-    reporter: [['list'], ['html', { open: 'never' }], ['@azure/playwright/reporter']],
+    reporter: [
+      ['list'],
+      ['html', { open: 'never' }],
+      ['@azure/playwright/reporter'],
+    ],
   }
 );
